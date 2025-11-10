@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Um Pedido Especial</title>
+    <style>
+        /* ------------------------- */
+        /* CSS */
+        /* ------------------------- */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fce4ec; /* Rosa claro para um toque romântico */
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+        }
+
+        h1 {
+            color: #d81b60; /* Rosa escuro */
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        #buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap; /* Para garantir que os botões caibam em telas menores */
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        #btnSim {
+            background-color: #4caf50; /* Verde */
+            color: white;
+            /* Inicialmente 100% do tamanho base (1em) */
+            font-size: 1em; 
+            min-width: 100px; /* Garante um tamanho mínimo */
+            min-height: 40px; /* Garante uma altura mínima */
+        }
+
+        #btnNao {
+            background-color: #f44336; /* Vermelho */
+            color: white;
+            transform: scale(1);
+        }
+
+        #btnNao:hover {
+            opacity: 0.8;
+        }
+
+        #simAccepted {
+            color: #d81b60;
+            font-size: 2.5em;
+            font-weight: bold;
+            display: none;
+            margin-top: 50px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ------------------------- */
+        /* Corações Reais */
+        /* ------------------------- */
+        .real-heart {
+            position: fixed;
+            bottom: -50px; /* Começa um pouco mais baixo */
+            font-size: 40px; /* Tamanho do coração */
+            z-index: 1000;
+            pointer-events: none;
+            animation: flyUp 10s linear infinite;
+            transform: scale(1); 
+        }
+
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-1000px) scale(0.5); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>Eu te amo, quer namorar comigo?</h1>
+
+        <div id="buttons">
+            <button id="btnSim" class="btn">Sim</button>
+            
+            <button id="btnNao" class="btn">Não</button>
+        </div>
+
+        <p id="simAccepted">🎉 Aee, valeu minha gatinha, te amo! ❤️</p>
+    </div>
+
+    <script>
+        /* ------------------------- */
+        /* JAVASCRIPT */
+        /* ------------------------- */
+        const btnSim = document.getElementById('btnSim');
+        const btnNao = document.getElementById('btnNao');
+        const container = document.getElementById('container');
+        const simAcceptedMessage = document.getElementById('simAccepted');
+        const buttonsContainer = document.getElementById('buttons');
+        
+        // Váriaveis de controle
+        let currentFontSize = 1.0; // Tamanho inicial do botão Sim (em)
+        let naoClickCount = 0;      // Contador de cliques do botão Não
+
+        // 1. Lógica para o botão NÃO
+        btnNao.addEventListener('click', () => {
+            naoClickCount++;
+            
+            // Aumenta o tamanho da fonte do botão Sim em 40% (mantendo a lógica anterior)
+            currentFontSize *= 1.4;
+            btnSim.style.fontSize = `${currentFontSize}em`;
+            
+            // Lógica de Diminuir/Sumir do botão NÃO
+            if (naoClickCount <= 4) {
+                // Diminui o botão NÃO (reduzindo a escala)
+                let scaleFactor = 1 - (naoClickCount * 0.25); // 0.75, 0.50, 0.25, 0 (no 4º click)
+                btnNao.style.transform = `scale(${scaleFactor})`;
+                
+                // Feedback visual
+                btnNao.textContent = 'Não :(';
+
+            } else {
+                // Após o 4º clique, some
+                btnNao.style.display = 'none';
+            }
+
+            // Se o botão Sim estiver muito grande, ajustamos o texto
+            if (currentFontSize > 3) {
+                btnSim.textContent = 'Sim (Por favor!)';
+            }
+        });
+
+        // 2. Lógica para o botão SIM
+        btnSim.addEventListener('click', () => {
+            // Esconde os botões e o pedido original
+            container.querySelector('h1').style.display = 'none';
+            buttonsContainer.style.display = 'none';
+            
+            // Mostra a mensagem de aceitação
+            simAcceptedMessage.style.display = 'block';
+
+            // Dispara a animação dos balões de coração
+            createHeartBalloons();
+        });
+
+        // 3. Função para criar corações reais (animação)
+        function createHeartBalloons() {
+            const numBalloons = 20;
+            for (let i = 0; i < numBalloons; i++) {
+                const heart = document.createElement('span'); 
+                heart.innerHTML = '❤️'; 
+                
+                heart.classList.add('real-heart'); 
+                
+                const startPosition = Math.random() * window.innerWidth;
+                heart.style.left = `${startPosition}px`;
+                
+                const delay = Math.random() * 5; 
+                heart.style.animationDelay = `${delay}s`;
+
+                document.body.appendChild(heart);
+            }
+        }
+
+    </script>
+</body>
+</html>
