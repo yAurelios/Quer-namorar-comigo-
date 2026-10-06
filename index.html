@@ -82,6 +82,68 @@
             animation: fadeIn 1s ease-out;
         }
 
+        #secretModal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        #secretModal.is-open {
+            display: flex;
+        }
+
+        #secretDialog {
+            width: min(100%, 420px);
+            padding: 28px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            text-align: left;
+        }
+
+        #secretDialog h2 {
+            margin: 0 0 20px;
+            color: #d81b60;
+            text-align: center;
+        }
+
+        #secretAnswer {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #aaa;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        #secretError {
+            min-height: 1.25em;
+            color: #c62828;
+        }
+
+        #secretDialog button {
+            padding: 10px 16px;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        #secretSubmit {
+            background: #d81b60;
+            color: white;
+        }
+
+        #secretClose {
+            margin-left: 8px;
+            background: #eee;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -105,10 +167,25 @@
             100% { transform: translateY(-1000px) scale(0.5); opacity: 0; }
         }
 
+        .ring {
+            position: fixed;
+            bottom: -50px;
+            font-size: 40px;
+            z-index: 1000;
+            pointer-events: none;
+            animation: floatRing 10s linear infinite;
+        }
+
+        @keyframes floatRing {
+            0% { transform: translateY(0) rotate(0deg) scale(0.7); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(-1000px) rotate(240deg) scale(1.1); opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
-
+    
     <div id="container">
         <h1>Minha baixinha, eu te amo muito e só quero saber se você um dia vai querer namorar comigo?</h1>
 
@@ -120,7 +197,22 @@
 
         <p id="simAccepted">🎉 Aee, valeu minha gatinha, te amo! ❤️<br>Não vai resgatar seu vale?</p>
     </div>
-
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <p>Você chegou até aqui! isso talvez seja novo pra você!</p>
+    <p>Talvez tenha demorado para descobrir, ou talvez eu tenha te falado, mas eu espero que tenha conseguido.</p>
+    <p id="startLink" role="button" tabindex="0" style="cursor: pointer;">Clique aqui e comece</p>
+    <div id="secretModal" aria-hidden="true">
+        <section id="secretDialog" role="dialog" aria-modal="true" aria-labelledby="secretTitle">
+            <h2 id="secretTitle">Meus tipos de amor</h2>
+            <form id="secretForm">
+                <label for="secretAnswer">Digite sua resposta:</label>
+                <input id="secretAnswer" type="text" autocomplete="off" required>
+                <p id="secretError" aria-live="polite"></p>
+                <button id="secretSubmit" type="submit">Responder</button>
+                <button id="secretClose" type="button">Fechar</button>
+            </form>
+        </section>
+    </div>
     <script>
         /* ------------------------- */
         /* JAVASCRIPT */
@@ -130,10 +222,71 @@
         const container = document.getElementById('container');
         const simAcceptedMessage = document.getElementById('simAccepted');
         const buttonsContainer = document.getElementById('buttons');
+        const startLink = document.getElementById('startLink');
+        const secretModal = document.getElementById('secretModal');
+        const secretForm = document.getElementById('secretForm');
+        const secretAnswer = document.getElementById('secretAnswer');
+        const secretError = document.getElementById('secretError');
+        const secretClose = document.getElementById('secretClose');
         
         // Váriaveis de controle
         let currentFontSize = 1.0; // Tamanho inicial do botão Sim (em)
         let naoClickCount = 0;      // Contador de cliques do botão Não
+        let ringsUnlocked = false;
+
+        function openSecretModal() {
+            secretModal.classList.add('is-open');
+            secretModal.setAttribute('aria-hidden', 'false');
+            secretAnswer.focus();
+        }
+
+        function closeSecretModal() {
+            secretModal.classList.remove('is-open');
+            secretModal.setAttribute('aria-hidden', 'true');
+            secretError.textContent = '';
+        }
+
+        startLink.addEventListener('click', openSecretModal);
+        startLink.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openSecretModal();
+            }
+        });
+        secretClose.addEventListener('click', closeSecretModal);
+        secretModal.addEventListener('click', (event) => {
+            if (event.target === secretModal) closeSecretModal();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && secretModal.classList.contains('is-open')) {
+                closeSecretModal();
+            }
+        });
+
+        secretForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (secretAnswer.value.trim().toLowerCase() !== 'kamikazeeroseterno') {
+                secretError.textContent = 'Essa resposta não está correta. Tente novamente.';
+                secretAnswer.focus();
+                return;
+            }
+
+            ringsUnlocked = true;
+            document.querySelectorAll('.real-heart, .ring').forEach((decoration) => decoration.remove());
+            container.querySelector('h1').style.display = '';
+            buttonsContainer.style.display = 'flex';
+            simAcceptedMessage.style.display = 'none';
+            btnSim.style.fontSize = '1em';
+            btnSim.textContent = 'Sim';
+            btnNao.style.display = '';
+            btnNao.style.transform = 'scale(1)';
+            btnNao.textContent = 'Não';
+            currentFontSize = 1.0;
+            naoClickCount = 0;
+            secretAnswer.value = '';
+            closeSecretModal();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
         // 1. Lógica para o botão NÃO
         btnNao.addEventListener('click', () => {
@@ -172,8 +325,11 @@
             // Mostra a mensagem de aceitação
             simAcceptedMessage.style.display = 'block';
 
-            // Dispara a animação dos balões de coração
-            createHeartBalloons();
+            if (ringsUnlocked) {
+                createRings();
+            } else {
+                createHeartBalloons();
+            }
         });
 
         // 3. Função para criar corações reais (animação)
@@ -192,6 +348,18 @@
                 heart.style.animationDelay = `${delay}s`;
 
                 document.body.appendChild(heart);
+            }
+        }
+
+        function createRings() {
+            const numRings = 20;
+            for (let i = 0; i < numRings; i++) {
+                const ring = document.createElement('span');
+                ring.textContent = '💍';
+                ring.classList.add('ring');
+                ring.style.left = `${Math.random() * window.innerWidth}px`;
+                ring.style.animationDelay = `${Math.random() * 5}s`;
+                document.body.appendChild(ring);
             }
         }
 
